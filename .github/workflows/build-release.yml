@@ -91,21 +91,22 @@ jobs:
         run: |
           TAG="${{ steps.tag_info.outputs.tag }}"
           TITLE="Wibes Protect ${TAG}"
-          BODY="## Wibes Protect ${TAG}
+          cat << 'NOTES' > release_notes.md
+          ## Wibes Protect Official Release
 
-Official Android APK release for **Wibes Protect**.
+          Official Android APK release for **Wibes Protect**.
 
-### Included Packages:
-- **WibesProtect-release.apk**: Release build signed with production keystore.
-- **WibesProtect-debug.apk**: Debug build with debugging symbols enabled.
+          ### Included APK Packages:
+          - **WibesProtect-release.apk**: Production release APK signed with upload keystore.
+          - **WibesProtect-debug.apk**: Debug APK with debug symbols.
 
-Automated build published via GitHub Actions."
+          Built with Gradle and published via GitHub Actions.
+          NOTES
 
-          # Check if release exists
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release $TAG exists. Uploading assets..."
             gh release upload "$TAG" release_assets/* --clobber
           else
             echo "Creating release $TAG..."
-            gh release create "$TAG" release_assets/* --title "$TITLE" --notes "$BODY"
+            gh release create "$TAG" release_assets/* --title "$TITLE" --notes-file release_notes.md
           fi
