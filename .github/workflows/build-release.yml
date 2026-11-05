@@ -33,12 +33,11 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Ensure Keystores and Permissions
+      - name: Accept Android SDK Licenses & Prepare Keystores
         run: |
+          yes | sdkmanager --licenses || true
           chmod +x ./gradlew
+          touch .env
           if [ ! -f "my-upload-key.jks" ]; then
             keytool -genkey -v -keystore my-upload-key.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000 -storepass wibesprotect123 -keypass wibesprotect123 -dname "CN=WibesProtect, OU=Security, O=Jattwibes, L=City, S=State, C=US"
           fi
@@ -58,6 +57,8 @@ jobs:
         id: prepare_apks
         run: |
           mkdir -p release_assets
+          find app/build/outputs/apk/ -type f -name "*.apk"
+          
           if [ -f "app/build/outputs/apk/release/app-release.apk" ]; then
             cp app/build/outputs/apk/release/app-release.apk release_assets/WibesProtect-release.apk
             echo "Release APK copied."
@@ -66,9 +67,23 @@ jobs:
             cp app/build/outputs/apk/debug/app-debug.apk release_assets/WibesProtect-debug.apk
             echo "Debug APK copied."
           fi
+
+          if [ ! -f "release_assets/WibesProtect-release.apk" ]; then
+            FIRST_REL=$(find app/build/outputs/apk/ -type f -name "*release*.apk" | head -n 1)
+            if [ -n "$FIRST_REL" ]; then
+              cp "$FIRST_REL" release_assets/WibesProtect-release.apk
+            fi
+          fi
+          if [ ! -f "release_assets/WibesProtect-debug.apk" ]; then
+            FIRST_DBG=$(find app/build/outputs/apk/ -type f -name "*debug*.apk" | head -n 1)
+            if [ -n "$FIRST_DBG" ]; then
+              cp "$FIRST_DBG" release_assets/WibesProtect-debug.apk
+            fi
+          fi
+
           ls -la release_assets/
 
-      - name: Upload APKs as Workflow Artifacts
+      - name: Upload APKs as Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: WibesProtect-APKs
