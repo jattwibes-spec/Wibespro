@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.example.model.KeystoreConfig
 import com.example.model.KeystoreMode
 import com.example.ui.components.CyberCard
-import com.example.ui.components.WibesGradientButton
+import com.example.ui.components.CyberGradientButton
 import com.example.ui.theme.*
 
 @Composable
@@ -74,25 +74,25 @@ fun SigningScreen(
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Auto-Generate (RSA 2048)", fontSize = 11.sp)
+                            Text("Auto-Generate", fontSize = 11.sp)
                         }
 
                         Button(
-                            onClick = { onUpdateConfig(config.copy(mode = KeystoreMode.CUSTOM)) },
+                            onClick = { onUpdateConfig(config.copy(mode = KeystoreMode.IMPORT_EXISTING)) },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (config.mode == KeystoreMode.CUSTOM) PrimaryPurple else CardBorderDark,
+                                containerColor = if (config.mode == KeystoreMode.IMPORT_EXISTING) PrimaryPurple else CardBorderDark,
                                 contentColor = Color.White
                             ),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Custom JKS/BKS", fontSize = 11.sp)
+                            Text("Import JKS/BKS", fontSize = 11.sp)
                         }
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    if (config.mode == KeystoreMode.CUSTOM) {
+                    if (config.mode == KeystoreMode.IMPORT_EXISTING) {
                         OutlinedTextField(
                             value = config.keystorePath,
                             onValueChange = { onUpdateConfig(config.copy(keystorePath = it)) },
@@ -158,10 +158,10 @@ fun SigningScreen(
         }
 
         item {
-            WibesGradientButton(
+            CyberGradientButton(
                 text = "Apply Certificate Settings",
                 icon = Icons.Default.Check,
-                onClick = { /* Applied */ },
+                onClick = { /* Settings Applied */ },
                 modifier = Modifier.fillMaxWidth()
             )
         }
